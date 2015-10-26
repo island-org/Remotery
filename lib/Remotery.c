@@ -4175,7 +4175,7 @@ static void Remotery_Destructor(Remotery* rmt)
     // Ensure this is the module that created it
     assert(g_RemoteryCreated == RMT_TRUE);
     assert(g_Remotery == rmt);
-    g_Remotery = NULL;
+    //g_Remotery = NULL;
     g_RemoteryCreated = RMT_FALSE;
 
     #ifdef RMT_USE_D3D11
