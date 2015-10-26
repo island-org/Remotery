@@ -13,6 +13,7 @@ Supported features:
 * Profiles itself and shows how it's performing in the viewer.
 * Can optionally sample CUDA/D3D11 GPU activity.
 * Console output for logging text.
+* Console input for sending commands to your game.
 
 
 Compiling
@@ -120,15 +121,10 @@ Sampling Direct3D 11 GPU activity
 ---------------------------------
 
 Remotery allows sampling of GPU activity on your main D3D11 context. After initialising Remotery, you need
-to bind it to D3D11 with the single call:
+to bind it to D3D11 with a single call from the thread that owns the device context:
 
     // Parameters are ID3D11Device* and ID3D11DeviceContext*
     rmt_BindD3D11(d3d11_device, d3d11_context);
-
-As D3D11 is very sensitive to what threads you call a function from, you need to call the following once
-every frame from whatever thread owns the context you bound to Remotery:
-
-    rmt_UpdateD3D11Frame();
 
 Sampling is then a simple case of:
 
@@ -150,19 +146,14 @@ your D3D11 device and context, ensure you notify Remotery before shutting down R
 
     rmt_UnbindD3D11();
 
+
 Sampling OpenGL GPU activity
----------------------------------
+----------------------------
 
 Remotery allows sampling of GPU activity on your main OpenGL context. After initialising Remotery, you need
 to bind it to OpenGL with the single call:
 
-    // Parameters are ID3D11Device* and ID3D11DeviceContext*
     rmt_BindOpenGL();
-
-As OpenGL is very sensitive to what threads you call a function from, you need to call the following once
-every frame from whatever thread owns the context you bound to Remotery:
-
-    rmt_UpdateOpenGLFrame();
 
 Sampling is then a simple case of:
 
@@ -183,3 +174,24 @@ Support for multiple contexts can be added pretty easily if there is demand for 
 your OpenGL device and context, ensure you notify Remotery before shutting down Remotery itself:
 
     rmt_UnbindOpenGL();
+
+
+Applying Configuration Settings
+-------------------------------
+
+Before creating your Remotery instance, you can configure its behaviour by retrieving its settings object:
+
+    rmtSettings* settings = rmt_Settings();
+
+Some important settings are:
+
+    // Redirect any Remotery allocations to your own malloc/free, with an additional context pointer
+    // that gets passed to your callbacks.
+    settings->malloc;
+    settings->free;
+    settings->mm_context;
+
+    // Specify an input handler that receives text input from the Remotery console, with an additional
+    // context pointer that gets passed to your callback.
+    settings->input_handler;
+    settings->input_handler_context;
